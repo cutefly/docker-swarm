@@ -1,0 +1,27 @@
+version: "3.4"
+services:
+  web:
+    # replace username/repo:tag with your name and image details
+    image: hypriot/rpi-whoami
+    networks:
+      - swarm-net
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+      placement:
+        constraints: [node.role != manager]
+    ports:
+      - "8000:8000"
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: 192.168.219.214:24224
+        tag: whoami
+
+networks:
+  swarm-net:
+    external: yes
+
+# docker stack deploy -c whoami.yml whoami
+# docker stack rm whoami

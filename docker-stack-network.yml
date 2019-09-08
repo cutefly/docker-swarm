@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  visualizer:
+    image: alexellis2/visualizer-arm
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - swarm-net
+
+  portainer:
+    image: portainer/portainer
+    command: -H unix:///var/run/docker.sock
+    ports:
+      - "9000:9000"
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/opt/portainer/data:/data"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - swarm-net
+
+  nettools:
+    image: raspbian/stretch
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+    networks:
+      - swarm-net
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
+networks:
+  swarm-net:
+    external: yes
+
+# docker network create --driver=overlay swarm-net
+# docker stack deploy -c docker-stack-network.yml network
+# docker stack rm network
